@@ -28,10 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.example.guitar_share.presentation.ui.components.bottom_navbar.BottomNavBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForumScreen(){
+fun ForumScreen(navController: NavController){
    var textInput by remember { mutableStateOf("") }
     Scaffold (
         topBar = {
@@ -41,11 +44,12 @@ fun ForumScreen(){
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
-        }
+        },
+        bottomBar = { BottomNavBar(navController) }
     ){ innerPadding ->
 
         Column (
@@ -104,14 +108,5 @@ fun ForumScreen(){
                 Text("Cancelar")
             }
         }
-
-
     }
-
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewOfForum(){
-    ForumScreen()
 }
