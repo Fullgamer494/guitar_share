@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.guitar_share.presentation.ui.screens.home.HomeScreen
+import com.example.guitar_share.presentation.ui.screens.profile.ProfileScreen
 
 @Composable
 fun NavManager(){
@@ -30,6 +31,7 @@ fun NavManager(){
         }
 
         composable("profile"){
+            ProfileScreen(navController)
         }
     }
 }

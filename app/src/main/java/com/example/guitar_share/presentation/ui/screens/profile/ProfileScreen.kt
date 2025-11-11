@@ -26,12 +26,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.guitar_share.presentation.ui.components.bottom_navbar.BottomNavBar
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScaffoldExample() {
+fun ProfileScreen(navController: NavController) {
     var presses by remember { mutableIntStateOf(0) }
 
     Scaffold(
@@ -46,6 +48,9 @@ fun ScaffoldExample() {
                 }
             )
         },
+        bottomBar = {
+            BottomNavBar(navController)
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
