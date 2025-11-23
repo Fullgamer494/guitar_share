@@ -1,85 +1,149 @@
 package com.example.guitar_share.presentation.ui.screens.profile
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.materialIcon
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.example.guitar_share.presentation.ui.components.bottom_navbar.BottomNavBar
 
+// Actualizamos el modelo de datos según la imagen
+data class User(
+    val username: String,
+    val email: String,
+    val guitarLevel: String,
+    val profileImageUrl: String
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController) {
-    var presses by remember { mutableIntStateOf(0) }
+    // Datos simulados basados en tu imagen
+    val user = User(
+        username = "Fullgamer494",
+        email = "fullgamer494@hotmail.com",
+        guitarLevel = "Principiante",
+        profileImageUrl = "https://i.pinimg.com/736x/ba/94/64/ba9464145eba8762f6286a3c8387c951.jpg" // URL de ejemplo (mono animado)
+    )
+
+    // Definimos el color naranja del botón de editar
+    val OrangeAccent = Color(0xFFE65100)
 
     Scaffold(
+        containerColor = Color.Black, // Fondo negro general
         topBar = {
             TopAppBar(
-                colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
                 title = {
-                    Text("Perfil")
-                }
+                    // Box para alinear el texto a la derecha
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                        Text(
+                            text = "Perfil",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF1C1C1C) // Un gris muy oscuro para la barra superior
+                )
             )
         },
         bottomBar = {
+            // Mantenemos tu componente de navegación
             BottomNavBar(navController)
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-
+                .padding(innerPadding)
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.Start // Alineación general a la izquierda
         ) {
-            AsyncImage(
-                model = "https://example.com/image.jpg",
-                contentDescription = "Translated description of what the image contains"
-            )
 
+            // SECCIÓN DE FOTO DE PERFIL (Centrada)
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(contentAlignment = Alignment.BottomEnd) {
+                    // Imagen de perfil
+                    Image(
+                        painter = rememberAsyncImagePainter(model = user.profileImageUrl),
+                        contentDescription = "Foto de perfil",
+                        modifier = Modifier
+                            .size(160.dp) // Imagen grande
+                            .clip(CircleShape)
+                            .background(Color.Gray),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    // Botón de editar superpuesto (Círculo naranja)
+                    SmallFloatingActionButton(
+                        onClick = { /* Acción editar */ },
+                        containerColor = OrangeAccent,
+                        contentColor = Color.White,
+                        shape = CircleShape,
+                        modifier = Modifier.size(45.dp).offset(x = (-5).dp, y = (-5).dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = "Editar",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // SECCIÓN DE DATOS
+            // 1. Nombre de usuario
+            ProfileInfoItem(label = "Nombre de usuario:", value = user.username)
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 2. Correo electrónico
+            ProfileInfoItem(label = "Correo electrónico:", value = user.email)
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 3. Nivel de guitarra
+            ProfileInfoItem(label = "Nivel de guitarra:", value = user.guitarLevel)
         }
     }
 }
 
-
 @Composable
-fun FilledButtonExample(onClick: () -> Unit) {
-    Button(onClick = { onClick() }) {
-        Icon(
-            Icons.Filled.Edit,
-            contentDescription = "Localized description",
-            modifier = Modifier.padding(end = 8.dp)
+fun ProfileInfoItem(label: String, value: String) {
+    Column {
+        Text(
+            text = label,
+            color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = value,
+            color = Color.Gray, 
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal
         )
     }
-}
-
-@Composable
-fun UserData(){
-    
 }
