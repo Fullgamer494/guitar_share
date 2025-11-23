@@ -2,7 +2,18 @@ package com.example.guitar_share.presentation.ui.screens.scores_library
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -11,21 +22,38 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.guitar_share.presentation.ui.components.bottom_navbar.BottomNavBar
 import com.example.guitar_share.R
+import com.example.guitar_share.presentation.ui.components.bottom_navbar.BottomNavBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,13 +114,14 @@ fun ScoreLibraryScreen(navController: NavController, viewModel: ScoreLibraryView
     val searchFieldState = rememberTextFieldState()
     val songs by viewModel.songs.collectAsState()
     val dummyResults = listOf("Resultado 1", "Resultado 2")
+    val OrangeButtonColor = Color(0xFFF05F22)
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Librería de Partitura",
+                        text = "Librería de Partituras",
                         textAlign = TextAlign.End,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -106,7 +135,29 @@ fun ScoreLibraryScreen(navController: NavController, viewModel: ScoreLibraryView
                 }
             )
         },
-        bottomBar = { BottomNavBar(navController) }
+        bottomBar = { BottomNavBar(navController) },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { },
+                modifier = Modifier
+                    .height(50.dp)
+                    .width(220.dp),
+                containerColor = OrangeButtonColor,
+                contentColor = Color.White,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Agregar"
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Nueva partitura",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            )
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -128,13 +179,11 @@ fun ScoreLibraryScreen(navController: NavController, viewModel: ScoreLibraryView
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
                         Image(
                             painter = painterResource(id = R.drawable.changotristeconlibro),
                             contentDescription = "Mono triste por no encontrar resultados",
                             modifier = Modifier.size(150.dp)
                         )
-
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = "Aún no has subido ninguna partitura",
