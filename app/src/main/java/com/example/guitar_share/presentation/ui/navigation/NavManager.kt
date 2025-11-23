@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.guitar_share.presentation.ui.screens.forum.ForumScreen
 import com.example.guitar_share.presentation.ui.screens.home.HomeScreen
+import com.example.guitar_share.presentation.ui.screens.scores_library.ScoreLibraryScreen
 
 @Composable
 fun NavManager(){
@@ -20,6 +21,7 @@ fun NavManager(){
         }
 
         composable("library"){
+            ScoreLibraryScreen(navController)
 
         }
 
