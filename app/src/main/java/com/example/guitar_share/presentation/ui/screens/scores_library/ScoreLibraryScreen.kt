@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -40,12 +42,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.guitar_share.presentation.ui.components.bottom_navbar.BottomNavBar
-
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.lazy.grid.items
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar(
-    textFieldState: TextFieldState,
+fun LibrarySearchBar(
+    textFieldState: androidx.compose.foundation.text.input.TextFieldState,
     onSearch: (String) -> Unit,
     searchResults: List<String>,
     modifier: Modifier = Modifier
@@ -53,12 +57,14 @@ fun SearchBar(
     var expanded by rememberSaveable{ mutableStateOf(false) }
     Box(
         modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .semantics { isTraversalGroup = true }
     ) {
         SearchBar(
             modifier = Modifier
                 .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .padding(16.dp)
                 .semantics { traversalIndex = 0f },
             inputField = {
                 SearchBarDefaults.InputField(
@@ -70,7 +76,7 @@ fun SearchBar(
                     },
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
-                    placeholder = { Text("Search") }
+                    placeholder = { Text("Búsqueda") }
                 )
             },
             expanded = expanded,
@@ -95,7 +101,10 @@ fun SearchBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScoreLibraryScreen(navController: NavController) {
+fun ScoreLibraryScreen(navController: NavController, viewModel: ScoreLibraryViewModel = viewModel()) {
+    val searchFieldState = rememberTextFieldState()
+    val songs by viewModel.songs.collectAsState()
+    val dummyResults = listOf("Resultado 1", "Resultado 2")
     Scaffold(
         topBar = {
             TopAppBar(
@@ -116,14 +125,35 @@ fun ScoreLibraryScreen(navController: NavController) {
             )
         },
         bottomBar = { BottomNavBar(navController) }
-    ) { innerPadding ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(16.dp)
+    ) {innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
         ) {
-
+            LibrarySearchBar(
+                textFieldState = searchFieldState,
+                onSearch = { query ->
+                    print("Buscando ${query}")
+                },
+                searchResults = dummyResults
+            )
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(16.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                items(songs) { song ->
+                    SongCard(
+                        song = song,
+                        onClick = {
+                            println("Click en: ${song.title}")
+                        }
+                    )
+                }
+            }
         }
     }
 }
