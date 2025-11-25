@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -23,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -32,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -116,6 +116,8 @@ fun ScoreLibraryScreen(navController: NavController, viewModel: ScoreLibraryView
     val dummyResults = listOf("Resultado 1", "Resultado 2")
     val OrangeButtonColor = Color(0xFFF05F22)
 
+    var activeSongCardId by rememberSaveable { mutableStateOf<Int?>(null) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -137,26 +139,25 @@ fun ScoreLibraryScreen(navController: NavController, viewModel: ScoreLibraryView
         },
         bottomBar = { BottomNavBar(navController) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { },
-                modifier = Modifier
-                    .height(50.dp)
-                    .width(220.dp),
-                containerColor = OrangeButtonColor,
-                contentColor = Color.White,
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Agregar"
-                    )
-                },
-                text = {
-                    Text(
-                        text = "Nueva partitura",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            )
+            if (activeSongCardId == null) {
+                ExtendedFloatingActionButton(
+                    onClick = { },
+                    containerColor = OrangeButtonColor,
+                    contentColor = Color.White,
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Agregar"
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = "Nueva partitura",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                )
+            }
         }
     ) { innerPadding ->
         Column(
@@ -164,51 +165,76 @@ fun ScoreLibraryScreen(navController: NavController, viewModel: ScoreLibraryView
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            LibrarySearchBar(
-                textFieldState = searchFieldState,
-                onSearch = { query ->
-                    viewModel.onSearchQueryChanged(query) },
-                searchResults = dummyResults
-            )
+            if (activeSongCardId == null) {
+                LibrarySearchBar(
+                    textFieldState = searchFieldState,
+                    onSearch = { query ->
+                        viewModel.onSearchQueryChanged(query)
+                    },
+                    searchResults = dummyResults
+                )
+            }
 
-            if (songs.isEmpty()){
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Image(
-                            painter = painterResource(id = R.drawable.changotristeconlibro),
-                            contentDescription = "Mono triste por no encontrar resultados",
-                            modifier = Modifier.size(150.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Aún no has subido ninguna partitura",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                    }
-                }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(16.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(songs) { song ->
-                        SongCard(
-                            song = song,
-                            onClick = {
-                                println("Click en: ${song.title}")
+            Box(modifier = Modifier.weight(1f)) {
+                if (activeSongCardId != null) {
+                    SongCardDetails(
+                        songId = activeSongCardId!!,
+                        onClose = { activeSongCardId = null }
+                    )
+                } else {
+                    if (songs.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.changotristeconlibro),
+                                    contentDescription = "Mono triste por no encontrar resultados",
+                                    modifier = Modifier.size(150.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Aún no has subido ninguna partitura",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
                             }
-                        )
+                        }
+                    } else {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(16.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(songs, key = { it.id }) { song ->
+                                SongCard(
+                                    song = song,
+                                    onClick = { activeSongCardId = song.id }
+                                )
+                            }
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun SongCardDetails(songId: Int, onClose: () -> Unit) {
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Detalles de la canción ID: $songId")
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onClose) {
+                Text("Regresar")
             }
         }
     }
