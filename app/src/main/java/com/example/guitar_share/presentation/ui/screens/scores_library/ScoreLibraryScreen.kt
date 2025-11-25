@@ -141,7 +141,9 @@ fun ScoreLibraryScreen(navController: NavController, viewModel: ScoreLibraryView
         floatingActionButton = {
             if (activeSongCardId == null) {
                 ExtendedFloatingActionButton(
-                    onClick = { },
+                    onClick = {
+                        navController.navigate("AddNewScore")
+                    },
                     containerColor = OrangeButtonColor,
                     contentColor = Color.White,
                     icon = {
