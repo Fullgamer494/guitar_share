@@ -1,7 +1,6 @@
 package com.example.guitar_share.presentation.ui.screens.forum
 
 data class ForumPostData(
-    // IMPORTANTE: El ID debe ser String y tener valor por defecto
     val id: String = "",
     val title: String = "",
     val body: String = "",

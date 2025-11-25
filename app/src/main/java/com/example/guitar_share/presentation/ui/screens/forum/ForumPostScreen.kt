@@ -181,12 +181,12 @@ fun ForumPostScreen(
                     }
 
                     isLoading = true
-                    viewModel.createPost(
+                    viewModel.createPostWithImage(
                         title = titleInput,
                         body = bodyInput,
                         authorName = "Usuario",
                         tag = "General",
-                        imageUrl = null,
+                        imageUri = selectedImageUri,
                         onSuccess = {
                             isLoading = false
                             navController.popBackStack()
