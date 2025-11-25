@@ -14,6 +14,7 @@ navigationCompose = "2.9.6"
 coil = "2.7.0"
 material3 = "1.4.0"
 firebaseBom = "33.1.0"
+googleServices = "4.4.2"
 
 [libraries]
 androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
@@ -43,4 +44,4 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
