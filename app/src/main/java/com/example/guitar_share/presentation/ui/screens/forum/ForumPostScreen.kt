@@ -32,7 +32,7 @@ import com.example.guitar_share.presentation.ui.theme.OrangeAction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForumScreen(navController: NavController){
+fun ForumPostScreen(navController: NavController){
    var textInput by remember { mutableStateOf("") }
     Scaffold (
         topBar = {
