@@ -68,7 +68,7 @@ dependencies {
     // Coil para imágenes
     implementation(libs.coil.compose)
 
-    // Firebase BoM (Bill of Materials)
+    // Firebase BoM (Bill of Materials) - Controla todas las versiones de Firebase
     implementation(platform(libs.firebase.bom))
 
     // Firebase Firestore
@@ -79,6 +79,4 @@ dependencies {
 
     // Firebase Storage (para futuro)
     implementation("com.google.firebase:firebase-storage-ktx")
-
-    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
 }
