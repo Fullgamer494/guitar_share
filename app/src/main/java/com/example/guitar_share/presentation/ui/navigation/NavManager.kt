@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.guitar_share.presentation.ui.screens.forum.ForumScreen
 import com.example.guitar_share.presentation.ui.screens.home.HomeScreen
+import com.example.guitar_share.presentation.ui.screens.scores_library.AddNewScore
 import com.example.guitar_share.presentation.ui.screens.scores_library.ScoreLibraryScreen
 
 @Composable
@@ -16,14 +17,15 @@ fun NavManager(){
         navController,
         startDestination = "home"
     ){
-        composable("score"){
-
-        }
 
         composable("library"){
             ScoreLibraryScreen(navController)
-
         }
+
+        composable("addNewScore"){
+            AddNewScore(navController)
+        }
+
 
         composable("home"){
             HomeScreen(navController)
