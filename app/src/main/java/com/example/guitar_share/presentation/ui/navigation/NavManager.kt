@@ -35,6 +35,10 @@ fun NavManager(){
             ForumScreen(navController)
         }
 
+        composable("create_post"){
+            ForumPostScreen(navController)
+        }
+
         composable("profile"){
         }
     }
