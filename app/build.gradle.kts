@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -58,15 +59,26 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // Dependencias
+    // Navegación
     implementation("androidx.navigation:navigation-compose:2.9.6")
     implementation("androidx.compose.material3:material3:1.2.1")
     implementation("androidx.compose.material:material-icons-core:1.6.1")
     implementation("androidx.compose.material:material-icons-extended:1.6.1")
+
+    // Coil para imágenes
     implementation(libs.coil.compose)
-    // Plataforma Firebase (Controla las versiones)
+
+    // Firebase BoM (Bill of Materials)
     implementation(platform(libs.firebase.bom))
 
-    // La base de datos Firestore
+    // Firebase Firestore
     implementation(libs.firebase.firestore)
+
+    // Firebase Auth (para futuro)
+    implementation("com.google.firebase:firebase-auth-ktx")
+
+    // Firebase Storage (para futuro)
+    implementation("com.google.firebase:firebase-storage-ktx")
+
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
 }

@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,7 +36,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,38 +50,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.guitar_share.R
 import com.example.guitar_share.presentation.ui.components.bottom_navbar.BottomNavBar
 
 @Composable
-fun ForumSocialScreen(navController: NavController) {
-    val posts = remember {
-        listOf(
-            ForumPostData(
-                id = 1,
-                title = "Fullgamer",
-                body = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-                authorName = "Fullgamer",
-                timeAgo = "Hace 2h",
-                tag = "Técnica",
-                likesCount = 200,
-                commentsCount = 4,
-                profilePictureUrl = "https://randomuser.me/api/portraits/men/1.jpg"
-            ),
-            ForumPostData(
-                id = 2,
-                title = "GuitaristPro",
-                body = "When an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-                authorName = "GuitaristPro",
-                timeAgo = "Hace 5h",
-                tag = "Gear",
-                likesCount = 42,
-                commentsCount = 12,
-                imageUrl = "https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?q=80&w=1000&auto=format&fit=crop"
-            )
-        )
+fun ForumSocialScreen(
+    navController: NavController,
+    viewModel: ForumViewModel = viewModel()
+) {
+    val posts by viewModel.posts.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredPosts = remember(posts, searchQuery) {
+        if (searchQuery.isBlank()) {
+            posts
+        } else {
+            posts.filter { post ->
+                post.title.contains(searchQuery, ignoreCase = true) ||
+                        post.body.contains(searchQuery, ignoreCase = true) ||
+                        post.authorName.contains(searchQuery, ignoreCase = true) ||
+                        post.tag.contains(searchQuery, ignoreCase = true)
+            }
+        }
     }
 
     Scaffold(
@@ -90,10 +91,76 @@ fun ForumSocialScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
-                ForumHeader(navController)
+                ForumHeader(
+                    navController = navController,
+                    searchQuery = searchQuery,
+                    onSearchQueryChange = { searchQuery = it }
+                )
             }
 
-            items(posts) { post ->
+            item {
+                when {
+                    isLoading && posts.isEmpty() -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    error != null && posts.isEmpty() -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.changotristeconlibro),
+                                    contentDescription = "Error",
+                                    modifier = Modifier.size(120.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = error ?: "Error desconocido",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
+                    filteredPosts.isEmpty() -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.changotristeconlibro),
+                                    contentDescription = "Sin resultados",
+                                    modifier = Modifier.size(120.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = if (searchQuery.isBlank())
+                                        "Aún no hay publicaciones en el foro"
+                                    else
+                                        "No se encontraron resultados",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            items(filteredPosts, key = { it.id }) { post ->
                 ForumPostCard(post = post)
             }
         }
@@ -101,7 +168,11 @@ fun ForumSocialScreen(navController: NavController) {
 }
 
 @Composable
-fun ForumHeader(navController: NavController) {
+fun ForumHeader(
+    navController: NavController,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -117,8 +188,8 @@ fun ForumHeader(navController: NavController) {
         )
 
         TextField(
-            value = "",
-            onValueChange = {},
+            value = searchQuery,
+            onValueChange = onSearchQueryChange,
             placeholder = { Text("Buscar...") },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             modifier = Modifier
@@ -212,7 +283,7 @@ fun ForumPostCard(post: ForumPostData) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Lorem Ipsum is simply",
+                text = post.title,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold
             )
