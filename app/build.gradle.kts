@@ -64,4 +64,9 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core:1.6.1")
     implementation("androidx.compose.material:material-icons-extended:1.6.1")
     implementation(libs.coil.compose)
+    // Plataforma Firebase (Controla las versiones)
+    implementation(platform(libs.firebase.bom))
+
+    // La base de datos Firestore
+    implementation(libs.firebase.firestore)
 }
