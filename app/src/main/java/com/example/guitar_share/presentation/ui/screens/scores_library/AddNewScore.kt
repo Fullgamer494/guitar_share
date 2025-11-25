@@ -30,13 +30,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,22 +50,31 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.guitar_share.presentation.ui.components.bottom_navbar.BottomNavBar
 import com.example.guitar_share.presentation.ui.theme.DarkCancel
 import com.example.guitar_share.presentation.ui.theme.EerielBlack
 import com.example.guitar_share.presentation.ui.theme.OrangeAction
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddNewScore(navController: NavController) {
+fun AddNewScore(
+    navController: NavController,
+    viewModel: ScoreLibraryViewModel = viewModel()
+) {
     var titleInput by remember { mutableStateOf("") }
     var artistInput by remember { mutableStateOf("") }
     var genreInput by remember { mutableStateOf("") }
     var keyInput by remember { mutableStateOf("") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var tagInput by remember { mutableStateOf("") }
+
+    val isLoading by viewModel.isLoading.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -87,7 +100,8 @@ fun AddNewScore(navController: NavController) {
                 }
             )
         },
-        bottomBar = { BottomNavBar(navController) }
+        bottomBar = { BottomNavBar(navController) },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
 
         Column(
@@ -105,7 +119,8 @@ fun AddNewScore(navController: NavController) {
                     modifier = Modifier.fillMaxWidth(),
                     value = titleInput,
                     onValueChange = { titleInput = it },
-                    placeholder = { Text("Ej: Lamento Boliviano") }
+                    placeholder = { Text("Ej: Lamento Boliviano") },
+                    enabled = !isLoading
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -114,7 +129,8 @@ fun AddNewScore(navController: NavController) {
                     modifier = Modifier.fillMaxWidth(),
                     value = artistInput,
                     onValueChange = { artistInput = it },
-                    placeholder = { Text("Ej: Enanitos Verdes") }
+                    placeholder = { Text("Ej: Enanitos Verdes") },
+                    enabled = !isLoading
                 )
             }
             Row(
@@ -130,7 +146,8 @@ fun AddNewScore(navController: NavController) {
                         modifier = Modifier.fillMaxWidth(),
                         value = genreInput,
                         onValueChange = { genreInput = it },
-                        placeholder = { Text("Rock") }
+                        placeholder = { Text("Rock") },
+                        enabled = !isLoading
                     )
                 }
                 Column(
@@ -142,7 +159,8 @@ fun AddNewScore(navController: NavController) {
                         modifier = Modifier.fillMaxWidth(),
                         value = keyInput,
                         onValueChange = { keyInput = it },
-                        placeholder = { Text("E Standard") }
+                        placeholder = { Text("E Standard") },
+                        enabled = !isLoading
                     )
                 }
             }
@@ -162,7 +180,7 @@ fun AddNewScore(navController: NavController) {
                             ),
                             shape = RoundedCornerShape(12.dp)
                         )
-                        .clickable {
+                        .clickable(enabled = !isLoading) {
                             imagePickerLauncher.launch("image/*")
                         },
                     contentAlignment = Alignment.Center
@@ -205,16 +223,18 @@ fun AddNewScore(navController: NavController) {
                         modifier = Modifier.weight(1f),
                         value = tagInput,
                         onValueChange = { tagInput = it },
-                        placeholder = { Text("Ej: Acústico") }
+                        placeholder = { Text("Ej: Acústico") },
+                        enabled = !isLoading
                     )
 
                     Button(
-                        onClick = { /* TODO: Acción agregar tag */ },
+                        onClick = { },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = EerielBlack,
                             contentColor = Color.White
                         ),
-                        modifier = Modifier.height(56.dp)
+                        modifier = Modifier.height(56.dp),
+                        enabled = !isLoading
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
@@ -233,15 +253,34 @@ fun AddNewScore(navController: NavController) {
                         .height(50.dp),
                     onClick = {
                         if (titleInput.isNotBlank() && artistInput.isNotBlank() && selectedImageUri != null) {
-                            navController.popBackStack()
+                            viewModel.uploadScore(
+                                title = titleInput,
+                                artist = artistInput,
+                                genre = genreInput,
+                                key = keyInput,
+                                imageUri = selectedImageUri,
+                                onSuccess = {
+                                    navController.popBackStack()
+                                },
+                                onError = { errorMsg ->
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(errorMsg)
+                                    }
+                                }
+                            )
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Completa título, artista e imagen")
+                            }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = OrangeAction,
                         contentColor = Color.White
-                    )
+                    ),
+                    enabled = !isLoading
                 ) {
-                    Text("Añadir partitura", fontWeight = FontWeight.Bold)
+                    Text(if (isLoading) "Subiendo..." else "Añadir partitura", fontWeight = FontWeight.Bold)
                 }
 
                 Button(
@@ -252,7 +291,8 @@ fun AddNewScore(navController: NavController) {
                     colors = ButtonDefaults.buttonColors(
                         containerColor = DarkCancel,
                         contentColor = Color.White
-                    )
+                    ),
+                    enabled = !isLoading
                 ) {
                     Text("Cancelar")
                 }

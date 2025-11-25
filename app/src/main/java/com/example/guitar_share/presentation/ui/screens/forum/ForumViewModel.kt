@@ -1,15 +1,20 @@
 package com.example.guitar_share.presentation.ui.screens.forum
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.UUID
 
 class ForumViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
     private var listenerRegistration: ListenerRegistration? = null
 
     private val _posts = MutableStateFlow<List<ForumPostData>>(emptyList())
@@ -34,7 +39,7 @@ class ForumViewModel : ViewModel() {
                 _isLoading.value = false
 
                 if (error != null) {
-                    _error.value = "Error al cargar posts: ${error.message}"
+                    _error.value = error.message
                     return@addSnapshotListener
                 }
 
@@ -62,20 +67,48 @@ class ForumViewModel : ViewModel() {
             }
     }
 
-    fun createPost(
+    fun createPostWithImage(
         title: String,
         body: String,
         authorName: String,
         tag: String,
-        imageUrl: String? = null,
+        imageUri: Uri?,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        if (title.isBlank() || body.isBlank()) {
-            onError("El título y el cuerpo no pueden estar vacíos")
-            return
-        }
+        _isLoading.value = true
 
+        if (imageUri != null) {
+            val filename = UUID.randomUUID().toString()
+            val ref = storage.reference.child("post_images/$filename")
+
+            ref.putFile(imageUri)
+                .addOnSuccessListener {
+                    ref.downloadUrl.addOnSuccessListener { downloadUrl ->
+                        savePostToFirestore(title, body, authorName, tag, downloadUrl.toString(), onSuccess, onError)
+                    }.addOnFailureListener { e ->
+                        _isLoading.value = false
+                        onError(e.message ?: "Error desconocido")
+                    }
+                }
+                .addOnFailureListener { e ->
+                    _isLoading.value = false
+                    onError(e.message ?: "Error desconocido")
+                }
+        } else {
+            savePostToFirestore(title, body, authorName, tag, null, onSuccess, onError)
+        }
+    }
+
+    private fun savePostToFirestore(
+        title: String,
+        body: String,
+        authorName: String,
+        tag: String,
+        imageUrl: String?,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
         val post = hashMapOf(
             "title" to title,
             "body" to body,
@@ -84,17 +117,19 @@ class ForumViewModel : ViewModel() {
             "timeAgo" to "Hace un momento",
             "likesCount" to 0,
             "commentsCount" to 0,
-            "timestamp" to com.google.firebase.Timestamp.now(),
+            "timestamp" to Timestamp.now(),
             "imageUrl" to imageUrl
         )
 
         db.collection("posts")
             .add(post)
             .addOnSuccessListener {
+                _isLoading.value = false
                 onSuccess()
             }
             .addOnFailureListener { e ->
-                onError("Error al crear post: ${e.message}")
+                _isLoading.value = false
+                onError(e.message ?: "Error desconocido")
             }
     }
 
