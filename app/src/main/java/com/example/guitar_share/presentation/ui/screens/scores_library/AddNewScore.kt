@@ -1,23 +1,34 @@
 package com.example.guitar_share.presentation.ui.screens.scores_library
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -29,11 +40,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.guitar_share.presentation.ui.components.bottom_navbar.BottomNavBar
 import com.example.guitar_share.presentation.ui.theme.DarkCancel
 import com.example.guitar_share.presentation.ui.theme.EerielBlack
@@ -41,17 +55,21 @@ import com.example.guitar_share.presentation.ui.theme.OrangeAction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddNewScore(navController: NavController){
+fun AddNewScore(navController: NavController) {
     var titleInput by remember { mutableStateOf("") }
     var artistInput by remember { mutableStateOf("") }
     var genreInput by remember { mutableStateOf("") }
     var keyInput by remember { mutableStateOf("") }
-    var imageInput by remember { mutableStateOf("") }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var tagInput by remember { mutableStateOf("") }
 
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        selectedImageUri = uri
+    }
 
-
-    Scaffold (
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = {
@@ -70,9 +88,9 @@ fun AddNewScore(navController: NavController){
             )
         },
         bottomBar = { BottomNavBar(navController) }
-    ){ innerPadding ->
+    ) { innerPadding ->
 
-        Column (
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier
@@ -80,7 +98,7 @@ fun AddNewScore(navController: NavController){
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp)
-        ){
+        ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Título de la partitura:", fontWeight = FontWeight.Medium)
                 TextField(
@@ -90,7 +108,6 @@ fun AddNewScore(navController: NavController){
                     placeholder = { Text("Ej: Lamento Boliviano") }
                 )
             }
-
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Artista:", fontWeight = FontWeight.Medium)
                 TextField(
@@ -100,12 +117,14 @@ fun AddNewScore(navController: NavController){
                     placeholder = { Text("Ej: Enanitos Verdes") }
                 )
             }
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Text("Género:", fontWeight = FontWeight.Medium)
                     TextField(
                         modifier = Modifier.fillMaxWidth(),
@@ -114,7 +133,10 @@ fun AddNewScore(navController: NavController){
                         placeholder = { Text("Rock") }
                     )
                 }
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Text("Clave de afinación:", fontWeight = FontWeight.Medium)
                     TextField(
                         modifier = Modifier.fillMaxWidth(),
@@ -124,21 +146,54 @@ fun AddNewScore(navController: NavController){
                     )
                 }
             }
-
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Selecciona partitura (Imagen):", fontWeight = FontWeight.Medium)
-                TextField(
+
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(150.dp),
-                    value = imageInput,
-                    onValueChange = { imageInput = it },
-                    placeholder = {
-                        Text("Pega el link de la imagen aquí...")
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(
+                            width = 2.dp,
+                            color = if (selectedImageUri != null) OrangeAction else Color.Gray.copy(
+                                alpha = 0.3f
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .clickable {
+                            imagePickerLauncher.launch("image/*")
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (selectedImageUri != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(selectedImageUri),
+                            contentDescription = "Imagen seleccionada",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Image,
+                                contentDescription = "Seleccionar imagen",
+                                modifier = Modifier.size(48.dp),
+                                tint = Color.Gray
+                            )
+                            Text(
+                                text = "Toca para seleccionar imagen",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray
+                            )
+                        }
                     }
-                )
+                }
             }
-
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Etiquetas:", fontWeight = FontWeight.Medium)
                 Row(
@@ -154,7 +209,7 @@ fun AddNewScore(navController: NavController){
                     )
 
                     Button(
-                        onClick = { /* Acción agregar tag */ },
+                        onClick = { /* TODO: Acción agregar tag */ },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = EerielBlack,
                             contentColor = Color.White
@@ -168,7 +223,6 @@ fun AddNewScore(navController: NavController){
                     }
                 }
             }
-
             Column(
                 modifier = Modifier.padding(top = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -177,7 +231,11 @@ fun AddNewScore(navController: NavController){
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        if (titleInput.isNotBlank() && artistInput.isNotBlank() && selectedImageUri != null) {
+                            navController.popBackStack()
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = OrangeAction,
                         contentColor = Color.White
