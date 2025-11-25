@@ -4,7 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.guitar_share.presentation.ui.screens.forum.ForumScreen
+import com.example.guitar_share.presentation.ui.screens.forum.ForumPostScreen
+import com.example.guitar_share.presentation.ui.screens.forum.ForumSocialScreen
 import com.example.guitar_share.presentation.ui.screens.home.HomeScreen
 import com.example.guitar_share.presentation.ui.screens.scores_library.AddNewScore
 import com.example.guitar_share.presentation.ui.screens.scores_library.ScoreLibraryScreen
@@ -26,13 +27,12 @@ fun NavManager(){
             AddNewScore(navController)
         }
 
-
         composable("home"){
             HomeScreen(navController)
         }
 
         composable("forum"){
-            ForumScreen(navController)
+            ForumSocialScreen(navController)
         }
 
         composable("profile"){
