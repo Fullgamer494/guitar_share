@@ -116,7 +116,7 @@ fun ScoreLibraryScreen(navController: NavController, viewModel: ScoreLibraryView
     val dummyResults = listOf("Resultado 1", "Resultado 2")
     val OrangeButtonColor = Color(0xFFF05F22)
 
-    var activeSongCardId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var activeSongCardId by rememberSaveable { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
@@ -226,7 +226,7 @@ fun ScoreLibraryScreen(navController: NavController, viewModel: ScoreLibraryView
 }
 
 @Composable
-fun SongCardDetails(songId: Int, onClose: () -> Unit) {
+fun SongCardDetails(songId: String, onClose: () -> Unit) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize(),

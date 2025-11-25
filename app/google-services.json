@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "592339803320",
+    "project_id": "guitar-share",
+    "storage_bucket": "guitar-share.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:592339803320:android:dfc8233de1ce77cafe684d",
+        "android_client_info": {
+          "package_name": "com.example.guitar_share"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCw5cFume2YFh2NUPdtwnbWGz1fGXjOmMk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
