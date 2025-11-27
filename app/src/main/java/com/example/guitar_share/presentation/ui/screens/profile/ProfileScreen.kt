@@ -1,7 +1,6 @@
 package com.example.guitar_share.presentation.ui.screens.profile
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -10,17 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
 import com.example.guitar_share.presentation.ui.components.bottom_navbar.BottomNavBar
 
-// Actualizamos el modelo de datos según la imagen
 data class User(
     val username: String,
     val email: String,
@@ -82,16 +77,6 @@ fun ProfileScreen(navController: NavController) {
                 contentAlignment = Alignment.Center
             ) {
                 Box(contentAlignment = Alignment.BottomEnd) {
-                    // Imagen de perfil
-                    Image(
-                        painter = rememberAsyncImagePainter(model = user.profileImageUrl),
-                        contentDescription = "Foto de perfil",
-                        modifier = Modifier
-                            .size(160.dp) // Imagen grande
-                            .clip(CircleShape)
-                            .background(Color.Gray),
-                        contentScale = ContentScale.Crop
-                    )
 
                     // Botón de editar superpuesto (Círculo naranja)
                     SmallFloatingActionButton(
