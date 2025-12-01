@@ -18,6 +18,9 @@ fun NavManager(){
         navController,
         startDestination = "home"
     ){
+        composable("score"){
+
+        }
 
         composable("library"){
             ScoreLibraryScreen(navController)
