@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -71,6 +73,14 @@ fun AddNewScore(
     var keyInput by remember { mutableStateOf("") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var tagInput by remember { mutableStateOf("") }
+
+    var expandedTagMenu by remember { mutableStateOf(false) }
+
+    val availableTags = listOf(
+        "Rock", "Pop", "Metal", "Jazz", "Blues",
+        "Clásica", "Acústica", "Eléctrica", "Fingerstyle",
+        "Principiante", "Intermedio", "Avanzado", "Solo", "Riffs"
+    )
 
     val isLoading by viewModel.isLoading.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -227,19 +237,36 @@ fun AddNewScore(
                         enabled = !isLoading
                     )
 
-                    Button(
-                        onClick = { },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = EerielBlack,
-                            contentColor = Color.White
-                        ),
-                        modifier = Modifier.height(56.dp),
-                        enabled = !isLoading
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Agregar etiqueta"
-                        )
+                    Box {
+                        Button(
+                            onClick = { expandedTagMenu = true },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = EerielBlack,
+                                contentColor = Color.White
+                            ),
+                            modifier = Modifier.height(56.dp),
+                            enabled = !isLoading
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Seleccionar etiqueta"
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = expandedTagMenu,
+                            onDismissRequest = { expandedTagMenu = false }
+                        ) {
+                            availableTags.forEach { tag ->
+                                DropdownMenuItem(
+                                    text = { Text(text = tag) },
+                                    onClick = {
+                                        tagInput = tag
+                                        expandedTagMenu = false
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
