@@ -1,4 +1,4 @@
-package com.example.guitar_share.presentation.ui.theme
+package com.example.guitar_share.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
