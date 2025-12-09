@@ -74,9 +74,21 @@ dependencies {
     // Firebase Firestore
     implementation(libs.firebase.firestore)
 
-    // Firebase Auth (para futuro)
+    // Firebase Storage
+    implementation("com.google.firebase:firebase-storage-ktx")
+
+    // Firebase Auth
     implementation("com.google.firebase:firebase-auth-ktx")
 
-    // Firebase Storage (para futuro)
-    implementation("com.google.firebase:firebase-storage-ktx")
+    // Google Credential Manager (Reemplaza al antiguo GMS Auth)
+    implementation("androidx.credentials:credentials:1.2.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.2.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+
+    // Koin for Android and Compose
+    implementation("io.insert-koin:koin-androidx-compose:3.5.3")
+
+    // Retrofit & Gson
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }

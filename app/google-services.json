@@ -12,7 +12,20 @@
           "package_name": "com.example.guitar_share"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "592339803320-4rlc0u1osv0erk5duul1a0dna58ded3f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.guitar_share",
+            "certificate_hash": "6e3c516c4ae4a87defa5d66dd78596dd5579297e"
+          }
+        },
+        {
+          "client_id": "592339803320-c1uh2agdfo4ia12qc1uq21hi0e8u4a16.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCw5cFume2YFh2NUPdtwnbWGz1fGXjOmMk"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "592339803320-c1uh2agdfo4ia12qc1uq21hi0e8u4a16.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
